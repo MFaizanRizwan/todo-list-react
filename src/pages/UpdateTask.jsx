@@ -77,7 +77,36 @@ function UpdateTask() {
     }
 
     function handleCheckbox(name, checked) {
+        setTask((prev) => {
+            let methods = [...(prev.notificationMethod || [])];
 
+            if (name === "emailNotification") {
+                if (checked) {
+                    if (!methods.includes("Email"))
+                        methods.push("Email");
+                } else {
+                    methods = methods.filter(
+                        (method) => method !== "Email"
+                    );
+                }
+            }
+
+            if (name === "smsNotification") {
+                if (checked) {
+                    if (!methods.includes("SMS"))
+                        methods.push("SMS");
+                } else {
+                    methods = methods.filter(
+                        (method) => method !== "SMS"
+                    );
+                }
+            }
+
+            return {
+                ...prev,
+                notificationMethod: methods,
+            };
+        });
     }
 
     function arraysEqual(a, b) {
@@ -288,7 +317,7 @@ function UpdateTask() {
                                     type="checkbox"
                                     name="emailNotification"
                                     checked={emailNotification}
-                                    onChange={handleChange}
+                                    onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
                                 />
                                 Email
                             </label>
@@ -313,7 +342,7 @@ function UpdateTask() {
                                     name="priority"
                                     value="High"
                                     checked={task.priority === "High"}
-                                    onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
+                                    onChange={handleChange}
                                 />
                                 High
                             </label>
