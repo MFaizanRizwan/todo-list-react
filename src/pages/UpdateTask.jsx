@@ -14,11 +14,12 @@ function UpdateTask() {
         return;
     }
 
-    let emailNotification = currentTask.notificationMethod?.includes("Email") || false;
-    let smsNotification = currentTask.notificationMethod?.includes("SMS") || false;
-
     const [showModal, setShowModal] = useState(false);
-    const [task, setTask] = useState(currentTask);
+    const [task, setTask] = useState({
+        ...currentTask,
+        emailNotification: currentTask.notificationMethod?.includes("Email") || false,
+        smsNotification: currentTask.notificationMethod?.includes("SMS") || false,
+    });
 
     useEffect(() => {
         validateSession();
@@ -27,10 +28,10 @@ function UpdateTask() {
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
 
-        setTask({
-            ...task,
+        setTask((prev) => ({
+            ...prev,
             [name]: type === "checkbox" ? checked : value,
-        });
+        }));
     }
 
     function getId() {
@@ -104,6 +105,8 @@ function UpdateTask() {
 
             return {
                 ...prev,
+                emailNotification: name === "emailNotification" ? checked : prev.emailNotification,
+                smsNotification: name === "smsNotification" ? checked : prev.smsNotification,
                 notificationMethod: methods,
             };
         });
@@ -316,7 +319,7 @@ function UpdateTask() {
                                 <input
                                     type="checkbox"
                                     name="emailNotification"
-                                    checked={emailNotification}
+                                    checked={task.emailNotification}
                                     onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
                                 />
                                 Email
@@ -326,7 +329,7 @@ function UpdateTask() {
                                 <input
                                     type="checkbox"
                                     name="smsNotification"
-                                    checked={smsNotification}
+                                    checked={task.smsNotification}
                                     onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
                                 />
                                 SMS
