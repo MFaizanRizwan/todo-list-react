@@ -37,8 +37,8 @@ function Details() {
                         <li>
                             <button
                                 onClick={() => navigate(
-                                        localStorage.getItem("userRole") === "user" ? "/" : "/dashboard"
-                                    )
+                                    localStorage.getItem("userRole") === "user" ? "/" : "/dashboard"
+                                )
                                 }>
                                 Todo App
                             </button>
@@ -117,9 +117,7 @@ function Details() {
                         <h4>Notification Method</h4>
 
                         <p>
-                            {task.notificationMethod.length === 0
-                                ? "None"
-                                : task.notificationMethod.join(", ")}
+                            {task.notificationMethod.length === 0 ? "None" : task.notificationMethod.join(", ")}
                         </p>
 
                     </div>
