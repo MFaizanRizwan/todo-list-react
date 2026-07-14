@@ -1,0 +1,219 @@
+:root {
+    --blue-primary: #302dad;
+    --white-primary: white;
+    --blue-border: blue;
+    --black-border: black;
+    --coral-blue: #5d8dff;
+    --dark-green: darkgreen;
+    --light-green: #10d627;
+    --add-btn: var(--blue-primary);
+    --view-detail-btn: #ffcb00;
+    --edit-btn: #2281ed;
+    --hover-add-btn: #c0ddfa;
+    --success: #10d640;
+    --error: #ed2130;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    height: 3.3rem;
+    font-size: x-large;
+    background-color: var(--blue-primary);
+    color: var(--white-primary);
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: var(--white-primary);
+    font-weight: 600;
+}
+
+.search {
+    height: 50px;
+    border-radius: 10px;
+}
+
+#search-bar {
+    margin-right: auto;
+    text-align: center;
+    height: 70%;
+    width: 100%;
+    border-radius: 100px;
+    outline: none;
+    border: 0px;
+    padding: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;}
+
+#search-bar:focus{
+    border: 2px solid var(--blue-border);
+}
+main {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    gap: 0rem;
+}
+
+
+
+.todo-container {
+    height: 70vh;
+    background-color: var(--coral-blue);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0rem;
+}
+
+#todo-viewer {
+    height: 60vh;
+    border-radius: 10px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    overflow-y: scroll;
+    background-color: var(--white-primary);
+    padding: 4px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+}
+
+.add-button {
+    display: flex;
+    margin-top: 10px;
+    gap: 60.4%;
+}
+
+#create-task-btn {
+    text-decoration: none;
+    color: var(--white-primary);
+    font-weight: 700;
+    background-color: var(--add-btn);
+    display: block;
+    width: 130px;
+    padding:10px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#create-task-btn:hover {
+    background-color: var(--hover-add-btn);
+    transition: all 0.3s ease;
+    color: var(--dark-green);
+}
+
+.task {
+    border: 1px solid rgb(171, 166, 166);
+    width: fit-content;
+    padding: 0.5rem;
+    border-radius: 10px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%; 
+    padding: 1rem;
+}
+
+.view-detail-btn {
+    outline: none;
+    border: none;
+    background-color: var(--view-detail-btn);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit {
+    outline: none;
+    border: none;
+    background-color: var(--edit-btn);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete {
+    outline: none;
+    border: none;
+    background-color: var(--error);
+    color: var(--white-primary);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.view-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    border: none;
+    background-color: var(--white-primary);
+    color: var(--blue-primary);
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background-color: var(--hover-add-btn);
+    color: var(--dark-green);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0px;
+  align-self: flex-end;
+  margin-right: auto;
+}
+
+.pagination li a {
+  display: block; /* let links fill the list item */
+  padding: 10px 12px;
+  text-decoration: none;
+  border: 0px;
+  color: black;  
+  margin: 0 4px;
+  border-radius: 5px; /* add rounded borders */
+  background-color: var(--white-primary);
+}
+
+.pagination li a:hover {
+  background-color: var(--blue-border);
+  color: var(--white-primary);
+}
+
+.no-tasks {
+    position: absolute;
+    display: flex;
+    color: rgba(20, 20, 185, 0.5);
+    font-weight:bold;
+    font-size: 500%;
+    align-items: center;
+    align-self: center;
+    margin-left: 20vw;
+}
