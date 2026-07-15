@@ -37,8 +37,7 @@ function Details() {
                         <li>
                             <button
                                 onClick={() => navigate(
-                                    localStorage.getItem("userRole") === "user" ? "/" : "/dashboard"
-                                )
+                                    localStorage.getItem("userRole") === "user" ? "/" : "/dashboard")
                                 }>
                                 Todo App
                             </button>
