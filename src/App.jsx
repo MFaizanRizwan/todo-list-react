@@ -24,8 +24,7 @@ function App() {
 
         <Route path="/update/:id" element={<UpdateTask />} />
 
-
-        <Route path="/details" element={<Details />} />
+        <Route path="/details/:id" element={<Details />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
 
