@@ -51,53 +51,55 @@ function SignUp() {
     }
 
     return (
-        <main>
-            <form
+        <div className="login-container">
+            <main className="login-main">
+                <form className="login-form"
                 onSubmit={(e) => {
                     e.preventDefault();
                     handleSignup();
                 }} >
 
-                <h1>Sign Up</h1>
+                <h1 className="login-title">Sign Up</h1>
 
                 <input
                     type="text"
-                    className="text-input"
+                    className="login-text-input"
                     placeholder="First Name"
                     value={firstname}
                     onChange={(e) => setFirstname(e.target.value)} />
 
                 <input
                     type="text"
-                    className="text-input"
+                    className="login-text-input"
                     placeholder="Last Name"
                     value={lastname}
                     onChange={(e) => setLastname(e.target.value)} />
 
                 <input
                     type="text"
-                    className="text-input"
+                    className="login-text-input"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)} />
 
                 <input
                     type="password"
-                    className="text-input"
+                    className="login-text-input"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)} />
 
-                <button type="submit" className="submit-btn">
+                <button type="submit" className="login-submit-btn">
                     Sign Up
                 </button>
 
                 <p>
                     Already have an account?{" "}
-                    <Link to="/login">Login instead</Link>
+                    <Link to="/login" className="login-link">Login instead</Link>
                 </p>
-            </form>
-        </main>
+                </form>
+            </main>
+        </div>
     );
 }
 

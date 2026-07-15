@@ -51,36 +51,36 @@ function Login() {
 
     return (
         <div className="login-container">
-            <main>
-                <form
+            <main className="login-main">
+                <form className="login-form"
                     onSubmit={(e) => {
                         e.preventDefault();
                         handleLogin();
                     }} >
 
-                    <h1>Login</h1>
+                    <h1 className="login-title">Login</h1>
 
                     <input
                         type="text"
-                        className="text-input"
+                        className="login-text-input"
                         placeholder="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)} />
 
                     <input
                         type="password"
-                        className="text-input"
+                        className="login-text-input"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} />
 
-                    <button type="submit" className="submit-btn">
+                    <button type="submit" className="login-submit-btn">
                         Login
                     </button>
 
                     <p>
                         Don't have an account?{" "}
-                        <Link to="/signup">Sign Up instead</Link>
+                        <Link to="/signup" className="login-link">Sign Up instead</Link>
                     </p>
                 </form>
             </main>

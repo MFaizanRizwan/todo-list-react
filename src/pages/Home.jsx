@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TaskCard from "./../components/TaskCard";
+import Navbar from "./../components/Navbar";
 import "./../css/style.css";
 
 function Home() {
@@ -30,12 +31,7 @@ function Home() {
     }
   }
 
-  function logout() {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userRole");
 
-    navigate("/login");
-  }
 
   function deleteTask(id) {
     const updated = tasks.filter((task) => task.id !== id);
@@ -61,25 +57,16 @@ function Home() {
 
   return (
     <>
-      <header>
-        <nav>
-          <h2>Todo App</h2>
-        </nav>
+      <Navbar 
+        showSearch={true} 
+        search={search} 
+        onSearchChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1);
+        }} 
+      />
 
-        <input
-          type="search"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
-
-        <button onClick={logout}>Logout</button>
-      </header>
-
-      <main>
+      <main className="home-main">
         <div className="todo-viewer">
 
           {currentTasks.length === 0 ? (
@@ -96,7 +83,7 @@ function Home() {
 
         </div>
 
-        <button onClick={() => navigate("/add")}>
+        <button className="create-task-btn" onClick={() => navigate("/add")}>
           Create New +
         </button>
 

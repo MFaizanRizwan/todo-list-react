@@ -30,7 +30,7 @@ function Details() {
     }
 
     return (
-        <>
+        <div className="details-page-wrapper">
             <header>
                 <nav>
                     <ul>
@@ -76,7 +76,7 @@ function Details() {
                         </div>
                     </div>
 
-                    <hr />
+                    <hr className="details-hr" />
 
                     <div className="section-details">
 
@@ -104,7 +104,7 @@ function Details() {
 
                     </div>
 
-                    <hr />
+                    <hr className="details-hr" />
 
                     <div className="section-details">
 
@@ -124,7 +124,7 @@ function Details() {
 
                 </div>
             </main>
-        </>
+        </div>
     );
 }
 

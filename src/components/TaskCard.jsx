@@ -13,7 +13,7 @@ function TaskCard({ task, deleteTask }) {
     <div
       className="task"
       style={{
-        border: `20px solid ${task.boxColor}`,
+        borderTop: `6px solid ${task.boxColor}`,
       }}
     >
       <h3>{task.name}</h3>
@@ -22,25 +22,27 @@ function TaskCard({ task, deleteTask }) {
 
       <p>{task.dueDate}</p>
 
-      <button
-        onClick={() =>
-          navigate(`/details/${task.id}`)
-        }
-      >
-        View Details
-      </button>
+      <div className="action-buttons">
+        <button className="view-detail-btn"
+          onClick={() =>
+            navigate(`/details/${task.id}`)
+          }
+        >
+          View Details
+        </button>
 
-      <button
-        onClick={() =>
-          navigate(`/update/${task.id}`)
-        }
-      >
-        Edit
-      </button>
+        <button className="edit"
+          onClick={() =>
+            navigate(`/update/${task.id}`)
+          }
+        >
+          Edit
+        </button>
 
-      <button onClick={confirmDelete}>
-        Delete
-      </button>
+        <button className="delete" onClick={confirmDelete}>
+          Delete
+        </button>
+      </div>
     </div>
   );
 }

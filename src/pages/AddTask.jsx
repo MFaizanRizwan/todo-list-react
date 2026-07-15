@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./../css/add.css";
+import Navbar from "./../components/Navbar";
 
 function AddTask() {
   const [showModal, setShowModal] = useState(false);
@@ -138,6 +139,7 @@ function AddTask() {
 
   return (
     <>
+      <Navbar showSearch={false} />
       {showModal && (
         <div className="success-modal">
           <div className="modal-options">
@@ -158,15 +160,14 @@ function AddTask() {
         </div>
       )}
 
-      <main>
-        <form onSubmit={handleSubmit}>
+      <main className="task-form-main">
+        <form onSubmit={handleSubmit} className="details-form">
           <div className="details-box">
             <h2>Primary Details</h2>
 
             <label>Name *</label>
 
-            <input
-              type="text"
+            <input className="task-form-input" type="text"
               name="todoName"
               value={task.todoName}
               onChange={handleChange}
@@ -174,16 +175,14 @@ function AddTask() {
 
             <label>Description</label>
 
-            <textarea
-              name="description"
+            <textarea className="task-form-textarea" name="description"
               value={task.description}
               onChange={handleChange}
             />
 
             <label>Start Date *</label>
 
-            <input
-              type="date"
+            <input className="task-form-input" type="date"
               name="startDate"
               value={task.startDate}
               onChange={handleChange}
@@ -191,8 +190,7 @@ function AddTask() {
 
             <label>Due Date *</label>
 
-            <input
-              type="date"
+            <input className="task-form-input" type="date"
               name="dueDate"
               value={task.dueDate}
               onChange={handleChange}
@@ -206,8 +204,7 @@ function AddTask() {
 
             <label>Email</label>
 
-            <input
-              type="email"
+            <input className="task-form-input" type="email"
               name="email"
               value={task.email}
               onChange={handleChange}
@@ -215,8 +212,7 @@ function AddTask() {
 
             <label>Box Color</label>
 
-            <input
-              type="color"
+            <input className="task-form-input" type="color"
               name="boxColor"
               value={task.boxColor}
               onChange={handleChange}
@@ -226,8 +222,7 @@ function AddTask() {
               Progress ({task.taskProgress}%)
             </label>
 
-            <input
-              type="range"
+            <input className="task-form-input" type="range"
               min="0"
               max="100"
               name="taskProgress"
@@ -243,8 +238,7 @@ function AddTask() {
 
             <label>Mobile Number</label>
 
-            <input
-              type="tel"
+            <input className="task-form-input" type="tel"
               name="mobileNumber"
               value={task.mobileNumber}
               onChange={handleChange}
@@ -252,8 +246,7 @@ function AddTask() {
 
             <label>Related Link</label>
 
-            <input
-              type="url"
+            <input className="task-form-input" type="url"
               name="relatedLink"
               value={task.relatedLink}
               onChange={handleChange}
@@ -263,8 +256,7 @@ function AddTask() {
 
             <div>
               <label>
-                <input
-                  type="checkbox"
+                <input className="task-form-input" type="checkbox"
                   name="emailNotification"
                   checked={task.emailNotification}
                   onChange={handleChange}
@@ -273,8 +265,7 @@ function AddTask() {
               </label>
 
               <label>
-                <input
-                  type="checkbox"
+                <input className="task-form-input" type="checkbox"
                   name="smsNotification"
                   checked={task.smsNotification}
                   onChange={handleChange}
@@ -287,8 +278,7 @@ function AddTask() {
 
             <div>
               <label>
-                <input
-                  type="radio"
+                <input className="task-form-radio" type="radio"
                   name="priority"
                   value="High"
                   checked={task.priority === "High"}
@@ -298,8 +288,7 @@ function AddTask() {
               </label>
 
               <label>
-                <input
-                  type="radio"
+                <input className="task-form-radio" type="radio"
                   name="priority"
                   value="Medium"
                   checked={task.priority === "Medium"}
@@ -309,8 +298,7 @@ function AddTask() {
               </label>
 
               <label>
-                <input
-                  type="radio"
+                <input className="task-form-radio" type="radio"
                   name="priority"
                   value="Low"
                   checked={task.priority === "Low"}
@@ -321,7 +309,7 @@ function AddTask() {
             </div>
           </div>
 
-          <button type="submit">Add Task</button>
+          <button type="submit" >Add Task</button>
         </form>
       </main>
     </>

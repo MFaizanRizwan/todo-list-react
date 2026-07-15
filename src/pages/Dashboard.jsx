@@ -1,6 +1,8 @@
 function Home() {
     return (
-        <h1>Sign Up Page</h1>
+        <div className="dashboard-container">
+            <h1>Sign Up Page</h1>
+        </div>
     );
 }
 
