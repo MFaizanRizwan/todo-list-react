@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./../css/add.css";
-import Navbar from "./../components/Navbar";
+import "../css/add.css";
+import Navbar from "../components/Navbar";
 
 function UpdateTask() {
 
