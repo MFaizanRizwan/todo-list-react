@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
+import { getTasks } from "../services/task_services/getTasks"; 
+import { deleteTask } from "../services/task_services/deleteTask"; 
 
 function DashboardDetails() {
     const navigate = useNavigate();
@@ -13,11 +15,11 @@ function DashboardDetails() {
         loadData();
     }, []);
 
-    const loadData = () => {
-        const tasksList = JSON.parse(localStorage.getItem("Tasks")) || [];
-        const usersList = JSON.parse(localStorage.getItem("Users")) || [];
+    const loadData = async () => {
+        const tasksList = await getTasks();
+        let usersList = JSON.parse(localStorage.getItem("Users")) || [];
+        usersList = usersList.filter(user => user.role === "user");
         
-        // Count tasks for each user to augment users list
         const userTaskCounts = {};
         tasksList.forEach(task => {
             if (task.author) {
@@ -34,10 +36,9 @@ function DashboardDetails() {
         setUsers(augmentedUsers);
     };
 
-    const confirmDeleteTask = (id) => {
+    const confirmDeleteTask = async (id) => {
         if (window.confirm("Are you sure you want to delete this task?")) {
-            const updatedTasks = tasks.filter(task => task.id !== id);
-            localStorage.setItem("Tasks", JSON.stringify(updatedTasks));
+            await deleteTask(id);
             loadData();
         }
     };
