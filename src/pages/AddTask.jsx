@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./../css/add.css";
 import Navbar from "./../components/Navbar";
+import { addTask } from "../services/task_services/addTask";
+import { useNavigate } from "react-router-dom";
 
 function AddTask() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const userRole = localStorage.getItem("userRole");
+
+    if (userRole !== "user") {
+      alert("You are not authorized.");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const [task, setTask] = useState({
     todoName: "",
@@ -29,20 +41,9 @@ function AddTask() {
 
     setTask({
       ...task,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : type === "range" ? Number(value) : value,
     });
   }
-
-  function validateSession() {
-    const userRole = localStorage.getItem("userRole");
-
-    if (userRole !== "user") {
-      alert("You are not authorized.");
-      navigate("/login");
-    }
-  }
-
-  validateSession();
 
   function validateInput() {
     if (
@@ -77,15 +78,19 @@ function AddTask() {
     return taskList.length + 1;
   }
 
-  function writeToLocalStorage(newTask) {
-    let taskList = JSON.parse(localStorage.getItem("taskList")) || [];
+  // function writeToLocalStorage(newTask) {
+  //   let taskList = JSON.parse(localStorage.getItem("taskList")) || [];
 
-    newTask.id = getId();
-    newTask.author = localStorage.getItem("authToken");
+  //   newTask.id = getId();
+  //   newTask.author = localStorage.getItem("authToken");
 
-    taskList.push(newTask);
+  //   taskList.push(newTask);
 
-    localStorage.setItem("taskList", JSON.stringify(taskList));
+  //   localStorage.setItem("taskList", JSON.stringify(taskList));
+  // }
+
+  async function handleAddTask(taskData) {
+    await addTask(taskData);
   }
 
   function handleSubmit(e) {
@@ -113,11 +118,12 @@ function AddTask() {
       relatedLink: task.relatedLink,
       notificationMethod,
       priority: task.priority,
+      author: localStorage.getItem("authToken"),
     };
 
     console.log(newTask);
 
-    writeToLocalStorage(newTask);
+    handleAddTask(newTask);
 
     setShowModal(true);
 
@@ -151,8 +157,7 @@ function AddTask() {
               </button>
 
               <button
-                onClick={() => (window.location.href = "/")}
-              >
+                onClick={() => (navigate("/"))}>
                 Go Back
               </button>
             </div>
