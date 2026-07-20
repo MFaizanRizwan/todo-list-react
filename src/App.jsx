@@ -8,28 +8,29 @@ import UpdateTask from "./pages/UpdateTask";
 import Details from "./pages/Details";
 import Dashboard from "./pages/Dashboard";
 import DashboardDetails from "./pages/DashboardDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
-
         <Route path="/signup" element={<Signup />} />
 
-        <Route path="/add" element={<AddTask />} />
+        <Route element={<ProtectedRoute allowedRoles={["admin", "user"]} />}>
+          <Route path="/update/:id" element={<UpdateTask />} />
+          <Route path="/details/:id" element={<Details />} />
+        </Route>
 
-        <Route path="/update/:id" element={<UpdateTask />} />
+        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/add" element={<AddTask />} />
+        </Route>
 
-        <Route path="/details/:id" element={<Details />} />
-
-        <Route path="/dashboard" element={<Dashboard />} />
-
-        <Route path="/dashboard_details" element={<DashboardDetails />}
-        />
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard_details" element={<DashboardDetails />} />
+        </Route>
 
       </Routes>
     </BrowserRouter>
