@@ -2,46 +2,47 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../css/add.css";
 import Navbar from "../components/Navbar";
+import { getTaskById } from "../services/task_services/getTaskById";
+import { updateTask } from "../services/task_services/updateTask";
 
 function UpdateTask() {
-
     const navigate = useNavigate();
     const { id } = useParams();
-    const currentTask = getTaskById(getId());
 
-    if (!currentTask) {
-        alert("Task not found.");
-        navigate("/");
-        return;
-    }
-
+    const [currentTask, setCurrentTask] = useState(null);
+    const [task, setTask] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [task, setTask] = useState({
-        ...currentTask,
-        emailNotification: currentTask.notificationMethod?.includes("Email") || false,
-        smsNotification: currentTask.notificationMethod?.includes("SMS") || false,
-    });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         validateSession();
-    }, []);
+        loadTask();
+    }, [id, navigate]);
 
-    function handleChange(e) {
-        const { name, value, type, checked } = e.target;
+    async function loadTask() {
+        try {
+            setLoading(true);
+            const loadedTask = await getTaskById(id);
 
-        setTask((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
-    }
+            if (!loadedTask) {
+                alert("Task not found.");
+                navigate("/");
+                return;
+            }
 
-    function getId() {
-        return Number(id);
-    }
-
-    function getTaskById(id) {
-        let taskList = JSON.parse(localStorage.getItem("taskList")) || [];
-        return taskList.find((task) => task.id === Number(id));
+            setCurrentTask(loadedTask);
+            setTask({
+                ...loadedTask,
+                emailNotification: loadedTask.notificationMethod?.includes("Email") || false,
+                smsNotification: loadedTask.notificationMethod?.includes("SMS") || false,
+            });
+        } catch (error) {
+            console.error("Error loading task:", error);
+            alert("Error loading task");
+            navigate("/");
+        } finally {
+            setLoading(false);
+        }
     }
 
     function validateSession() {
@@ -51,6 +52,15 @@ function UpdateTask() {
             alert("You are not authorized.");
             navigate("/login");
         }
+    }
+
+    function handleChange(e) {
+        const { name, value, type, checked } = e.target;
+
+        setTask((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : type === "range" ? Number(value) : value,
+        }));
     }
 
     function validateInput() {
@@ -84,23 +94,17 @@ function UpdateTask() {
 
             if (name === "emailNotification") {
                 if (checked) {
-                    if (!methods.includes("Email"))
-                        methods.push("Email");
+                    if (!methods.includes("Email")) methods.push("Email");
                 } else {
-                    methods = methods.filter(
-                        (method) => method !== "Email"
-                    );
+                    methods = methods.filter((method) => method !== "Email");
                 }
             }
 
             if (name === "smsNotification") {
                 if (checked) {
-                    if (!methods.includes("SMS"))
-                        methods.push("SMS");
+                    if (!methods.includes("SMS")) methods.push("SMS");
                 } else {
-                    methods = methods.filter(
-                        (method) => method !== "SMS"
-                    );
+                    methods = methods.filter((method) => method !== "SMS");
                 }
             }
 
@@ -119,76 +123,63 @@ function UpdateTask() {
         return a.every((value, index) => value === b[index]);
     }
 
-
-    function updated(object, NewName, NewDescription, NewStartDate, NewdueDate, NewEmail, NewMobileNumber, NewRelatedLink, NewTaskProgress, NewPriority, NewNotificationMethod, NewboxColor) {
+    function hasChanges() {
         return (
-            object.name !== NewName ||
-            object.description !== NewDescription ||
-            object.startDate !== NewStartDate ||
-            object.dueDate !== NewdueDate ||
-            object.email !== NewEmail ||
-            object.mobileNumber !== NewMobileNumber ||
-            object.relatedLink !== NewRelatedLink ||
-            object.taskProgress !== NewTaskProgress ||
-            object.priority !== NewPriority ||
-            object.boxColor !== NewboxColor ||
-            !arraysEqual(object.notificationMethod || [], NewNotificationMethod || [])
+            currentTask.name !== task.name ||
+            currentTask.description !== task.description ||
+            currentTask.startDate !== task.startDate ||
+            currentTask.dueDate !== task.dueDate ||
+            currentTask.email !== task.email ||
+            currentTask.mobileNumber !== task.mobileNumber ||
+            currentTask.relatedLink !== task.relatedLink ||
+            currentTask.taskProgress !== task.taskProgress ||
+            currentTask.priority !== task.priority ||
+            currentTask.boxColor !== task.boxColor ||
+            !arraysEqual(currentTask.notificationMethod || [], task.notificationMethod || [])
         );
     }
 
-    function writeToLocalStorage(newTask) {
-        let taskList = JSON.parse(localStorage.getItem("taskList")) || [];
-
-        const updatedTasks = taskList.filter((task) => task.id !== newTask.id);
-        updatedTasks.push(newTask);
-
-        localStorage.setItem(
-            "taskList",
-            JSON.stringify(updatedTasks)
-        );
-    }
-
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!validateInput())
-            return;
+        if (!validateInput()) return;
+        if (!validateDate()) return;
 
-        if (!validateDate())
-            return;
-
-        if (!updated(currentTask, task.name, task.description, task.startDate, task.dueDate, task.email, task.mobileNumber, task.relatedLink, task.taskProgress, task.priority, task.notificationMethod, task.boxColor)) {
+        if (!hasChanges()) {
             alert("No changes made to the task.");
             return;
         }
 
-        const notificationMethod = [];
+        try {
+            const updatePayload = {
+                name: task.name,
+                description: task.description,
+                startDate: task.startDate,
+                dueDate: task.dueDate,
+                email: task.email,
+                boxColor: task.boxColor,
+                taskProgress: task.taskProgress,
+                mobileNumber: task.mobileNumber,
+                relatedLink: task.relatedLink,
+                notificationMethod: task.notificationMethod || [],
+                priority: task.priority,
+                author: task.author,
+            };
 
-        if (task.emailNotification)
-            notificationMethod.push("Email");
-        if (task.smsNotification) notificationMethod.push("SMS");
+            await updateTask(task.id, updatePayload);
+            setShowModal(true);
+        } catch (error) {
+            console.error("Error updating task:", error);
+            alert("Error updating task");
+        }
+    }
 
-        const newTask = {
-            id: task.id,
-            author: task.author,
-            name: task.name,
-            description: task.description,
-            startDate: task.startDate,
-            dueDate: task.dueDate,
-            email: task.email,
-            boxColor: task.boxColor,
-            taskProgress: task.taskProgress,
-            mobileNumber: task.mobileNumber,
-            relatedLink: task.relatedLink,
-            notificationMethod: task.notificationMethod,
-            priority: task.priority,
-        };
+    if (loading) {
+        return <h2>Loading...</h2>;
+    }
 
-        console.log(newTask);
-
-        writeToLocalStorage(newTask);
-
-        setShowModal(true);
+    if (!task) {
+        return <h2>Task not found</h2>;
     }
 
     return (
@@ -204,8 +195,7 @@ function UpdateTask() {
                                 See Details
                             </button>
 
-                            <button
-                                onClick={() => (navigate("/"))}>
+                            <button onClick={() => navigate("/")}>
                                 Go Back
                             </button>
                         </div>
@@ -219,7 +209,6 @@ function UpdateTask() {
                         <h2>Primary Details</h2>
 
                         <label>Name *</label>
-
                         <input className="task-form-input" type="text"
                             name="name"
                             value={task.name}
@@ -227,14 +216,12 @@ function UpdateTask() {
                         />
 
                         <label>Description</label>
-
                         <textarea className="task-form-textarea" name="description"
                             value={task.description}
                             onChange={handleChange}
                         />
 
                         <label>Start Date *</label>
-
                         <input className="task-form-input" type="date"
                             name="startDate"
                             value={task.startDate}
@@ -242,7 +229,6 @@ function UpdateTask() {
                         />
 
                         <label>Due Date *</label>
-
                         <input className="task-form-input" type="date"
                             name="dueDate"
                             value={task.dueDate}
@@ -256,7 +242,6 @@ function UpdateTask() {
                         <h2>Secondary Details</h2>
 
                         <label>Email</label>
-
                         <input className="task-form-input" type="email"
                             name="email"
                             value={task.email}
@@ -264,17 +249,13 @@ function UpdateTask() {
                         />
 
                         <label>Box Color</label>
-
                         <input className="task-form-input" type="color"
                             name="boxColor"
                             value={task.boxColor}
                             onChange={handleChange}
                         />
 
-                        <label>
-                            Progress ({task.taskProgress}%)
-                        </label>
-
+                        <label>Progress ({task.taskProgress}%)</label>
                         <input className="task-form-input" type="range"
                             min="0"
                             max="100"
@@ -290,7 +271,6 @@ function UpdateTask() {
                         <h2>Additional Details</h2>
 
                         <label>Mobile Number</label>
-
                         <input className="task-form-input" type="tel"
                             name="mobileNumber"
                             value={task.mobileNumber}
@@ -298,7 +278,6 @@ function UpdateTask() {
                         />
 
                         <label>Related Link</label>
-
                         <input className="task-form-input" type="url"
                             name="relatedLink"
                             value={task.relatedLink}
@@ -306,13 +285,12 @@ function UpdateTask() {
                         />
 
                         <label>Notification</label>
-
                         <div>
                             <label>
                                 <input className="task-form-input" type="checkbox"
                                     name="emailNotification"
                                     checked={task.emailNotification}
-                                    onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
+                                    onChange={(e) => handleCheckbox(e.target.name, e.target.checked)}
                                 />
                                 Email
                             </label>
@@ -321,14 +299,13 @@ function UpdateTask() {
                                 <input className="task-form-input" type="checkbox"
                                     name="smsNotification"
                                     checked={task.smsNotification}
-                                    onChange={(e) => { handleCheckbox(e.target.name, e.target.checked) }}
+                                    onChange={(e) => handleCheckbox(e.target.name, e.target.checked)}
                                 />
                                 SMS
                             </label>
                         </div>
 
                         <label>Priority</label>
-
                         <div>
                             <label>
                                 <input className="task-form-radio" type="radio"
