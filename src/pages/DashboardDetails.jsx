@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
-import { getTasks } from "../services/task_services/getTasks"; 
-import { deleteTask } from "../services/task_services/deleteTask"; 
+import { getTasks } from "../services/task_services/getTasks";
+import { deleteTask } from "../services/task_services/deleteTask";
+import { getUsers } from "../services/user_services/getUsers";
 
 function DashboardDetails() {
     const navigate = useNavigate();
@@ -17,9 +18,9 @@ function DashboardDetails() {
 
     const loadData = async () => {
         const tasksList = await getTasks();
-        let usersList = JSON.parse(localStorage.getItem("Users")) || [];
-        usersList = usersList.filter(user => user.role === "user");
-        
+        const allUsers = await getUsers();
+        const usersList = allUsers.filter(user => user.role === "user");
+
         const userTaskCounts = {};
         tasksList.forEach(task => {
             if (task.author) {
@@ -29,7 +30,7 @@ function DashboardDetails() {
 
         const augmentedUsers = usersList.map(user => ({
             ...user,
-            taskCount: userTaskCounts[user.username] || 0
+            taskCount: userTaskCounts[user.id] || 0
         }));
 
         setTasks(tasksList);
@@ -39,14 +40,6 @@ function DashboardDetails() {
     const confirmDeleteTask = async (id) => {
         if (window.confirm("Are you sure you want to delete this task?")) {
             await deleteTask(id);
-            loadData();
-        }
-    };
-
-    const confirmDeleteUser = (username) => {
-        if (window.confirm("Are you sure you want to delete this user?")) {
-            const updatedUsers = users.filter(user => user.username !== username);
-            localStorage.setItem("Users", JSON.stringify(updatedUsers));
             loadData();
         }
     };
@@ -68,7 +61,7 @@ function DashboardDetails() {
                 </div>
                 <div className="analytics-section">
                     <h1>Data Section</h1>
-                    
+
                     <h2 className="data-heading">Tasks Data</h2>
                     <div className="data-table">
                         <table className="dashboard-table">
@@ -90,7 +83,7 @@ function DashboardDetails() {
                                             <button className="view-detail-btn" onClick={() => navigate(`/details/${task.id}`)} style={{ marginRight: '8px' }}>
                                                 View
                                             </button>
-                                            <button className="edit" onClick={() => navigate(`/update/${task.id}`)} style={{ marginRight: '8px' }}>
+                                            <button className="edit" onClick={() => navigate(`/task/${task.id}`)} style={{ marginRight: '8px' }}>
                                                 Edit
                                             </button>
                                             <button className="delete" onClick={() => confirmDeleteTask(task.id)}>
@@ -114,27 +107,21 @@ function DashboardDetails() {
                             <thead>
                                 <tr>
                                     <th className="dashboard-th">No.</th>
-                                    <th className="dashboard-th">Username</th>
+                                    <th className="dashboard-th">Email</th>
                                     <th className="dashboard-th">Task Count</th>
-                                    <th className="dashboard-th">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {users.map((user, index) => (
-                                    <tr key={user.username} className="dashboard-tr">
+                                    <tr key={user.id} className="dashboard-tr">
                                         <td className="dashboard-td">{index + 1}</td>
-                                        <td className="dashboard-td">{user.username}</td>
+                                        <td className="dashboard-td">{user.email}</td>
                                         <td className="dashboard-td">{user.taskCount}</td>
-                                        <td className="dashboard-td">
-                                            <button className="delete" onClick={() => confirmDeleteUser(user.username)}>
-                                                Delete
-                                            </button>
-                                        </td>
                                     </tr>
                                 ))}
                                 {users.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="dashboard-td" style={{ textAlign: "center" }}>No users found</td>
+                                        <td colSpan="3" className="dashboard-td" style={{ textAlign: "center" }}>No users found</td>
                                     </tr>
                                 )}
                             </tbody>
