@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getTaskById } from "../services/task_services/getTaskById";
 import "../css/details.css";
 
 function Details() {
@@ -9,20 +10,19 @@ function Details() {
     const [task, setTask] = useState(null);
 
     useEffect(() => {
-        const taskList =
-            JSON.parse(localStorage.getItem("taskList")) || [];
+        const loadTask = async () => {
+            const currentTask = await getTaskById(id);
 
-        const currentTask = taskList.find(
-            (task) => task.id === Number(id)
-        );
+            if (!currentTask) {
+                alert("Task not found.");
+                navigate("/");
+                return;
+            }
 
-        if (!currentTask) {
-            alert("Task not found.");
-            navigate("/");
-            return;
-        }
+            setTask(currentTask);
+        };
 
-        setTask(currentTask);
+        loadTask();
     }, [id, navigate]);
 
     if (!task) {
