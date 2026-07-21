@@ -2,24 +2,26 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
 } from 'chart.js';
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
+import { getTasks } from "../services/task_services/getTasks";
+import { getUsersCount } from "../services/user_services/getUsersCount";
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
 );
 
 function Dashboard() {
@@ -28,10 +30,15 @@ function Dashboard() {
 
     useEffect(() => {
         document.title = "TODO App | Admin Dashboard";
-        const tasksList = JSON.parse(localStorage.getItem("Tasks")) || [];
-        const usersList = JSON.parse(localStorage.getItem("Users")) || [];
-        setTasksCount(tasksList.length);
-        setUsersCount(usersList.length);
+
+        const loadCounts = async () => {
+            const tasksList = await getTasks();
+            const count = await getUsersCount();
+            setTasksCount(tasksList.length);
+            setUsersCount(count);
+        };
+
+        loadCounts();
     }, []);
 
     const chartData = {
