@@ -1,52 +1,52 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { auth } from "../services/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { addUserToFirestore } from "../services/user_services/addUserToFirestore";
 import "../css/login.css";
 
 function SignUp() {
     const navigate = useNavigate();
 
-    const [firstname, setFirstname] = useState("");
-    const [lastname, setLastname] = useState("");
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         document.title = "TODO App | Sign Up";
     }, []);
 
-    function getData(user) {
-        return {
-            token: user.username,
-            role: user.role,
-        };
-    }
+    async function handleSignup() {
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
 
-    function handleSignup() {
-        let usersList = JSON.parse(localStorage.getItem("Users")) || [];
+        setLoading(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-        const existingUser = usersList.find((user) => user.username === username);
+            let role = "user";
+            if (email === import.meta.env.VITE_FIREBASE_ADMIN_EMAIL) {
+                role = "admin";
+            }
 
-        if (!existingUser) {
-            const newUser = {
-                firstname,
-                lastname,
-                username,
-                password,
-                role: "user"
-            };
+            // Store email + role in Firestore (no password)
+            await addUserToFirestore(user.uid, email, role);
 
-            usersList.push(newUser);
-            localStorage.setItem("Users", JSON.stringify(usersList));
+            // Sign out the user so they have to actually log in
+            await auth.signOut();
 
-            localStorage.removeItem("authToken");
-            localStorage.removeItem("userRole");
-
-            localStorage.setItem("authToken", newUser.username);
-            localStorage.setItem("userRole", newUser.role);
-
-            navigate("/");
-        } else {
-            alert("User already exists");
+            alert("Signup successful! Please log in.");
+            navigate("/login");
+        } catch (error) {
+            console.error("Error signing up:", error);
+            alert(error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -54,49 +54,45 @@ function SignUp() {
         <div className="login-container">
             <main className="login-main">
                 <form className="login-form"
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSignup();
-                }} >
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSignup();
+                    }} >
 
-                <h1 className="login-title">Sign Up</h1>
+                    <h1 className="login-title">Sign Up</h1>
 
-                <input
-                    type="text"
-                    className="login-text-input"
-                    placeholder="First Name"
-                    value={firstname}
-                    onChange={(e) => setFirstname(e.target.value)} />
+                    <input
+                        type="email"
+                        className="login-text-input"
+                        placeholder="Email Address"
+                        value={email}
+                        required
+                        onChange={(e) => setEmail(e.target.value)} />
 
-                <input
-                    type="text"
-                    className="login-text-input"
-                    placeholder="Last Name"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)} />
+                    <input
+                        type="password"
+                        className="login-text-input"
+                        placeholder="Password"
+                        value={password}
+                        required
+                        onChange={(e) => setPassword(e.target.value)} />
 
-                <input
-                    type="text"
-                    className="login-text-input"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)} />
+                    <input
+                        type="password"
+                        className="login-text-input"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        required
+                        onChange={(e) => setConfirmPassword(e.target.value)} />
 
-                <input
-                    type="password"
-                    className="login-text-input"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)} />
+                    <button type="submit" className="login-submit-btn" disabled={loading}>
+                        {loading ? "Signing up..." : "Sign Up"}
+                    </button>
 
-                <button type="submit" className="login-submit-btn">
-                    Sign Up
-                </button>
-
-                <p>
-                    Already have an account?{" "}
-                    <Link to="/login" className="login-link">Login instead</Link>
-                </p>
+                    <p>
+                        Already have an account?{" "}
+                        <Link to="/login" className="login-link">Login instead</Link>
+                    </p>
                 </form>
             </main>
         </div>
