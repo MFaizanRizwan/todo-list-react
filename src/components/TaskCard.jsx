@@ -9,36 +9,44 @@ function TaskCard({ task, deleteTask }) {
     }
   }
 
+  // Convert hex boxColor into a light tint by appending opacity hex (1E = 12%)
+  const tintColor = task.boxColor ? `${task.boxColor}1E` : "rgba(79,70,229,0.07)";
+
   return (
     <div
-      className="task"
+      className="task-row"
       style={{
-        borderTop: `6px solid ${task.boxColor}`,
+        borderLeft: `4px solid ${task.boxColor || "#4F46E5"}`,
+        background: tintColor,
       }}
     >
-      <h3>{task.name}</h3>
+      <div className="task-row-info">
+        <span className="task-row-name">{task.name}</span>
+        <span className="task-row-meta">
+          {task.startDate} → {task.dueDate}
+        </span>
+      </div>
 
-      <p>{task.startDate}</p>
+      {task.priority && (
+        <span className={`task-row-priority priority-${task.priority.toLowerCase()}`}>
+          {task.priority}
+        </span>
+      )}
 
-      <p>{task.dueDate}</p>
+      <div className="task-row-progress">
+        <div
+          className="task-row-progress-bar"
+          style={{ width: `${task.taskProgress || 0}%`, background: task.boxColor || "#4F46E5" }}
+        />
+      </div>
 
-      <div className="action-buttons">
-        <button className="view-detail-btn"
-          onClick={() =>
-            navigate(`/details/${task.id}`)
-          }
-        >
-          View Details
+      <div className="task-row-actions">
+        <button className="view-detail-btn" onClick={() => navigate(`/details/${task.id}`)}>
+          Details
         </button>
-
-        <button className="edit"
-          onClick={() =>
-            navigate(`/update/${task.id}`)
-          }
-        >
+        <button className="edit" onClick={() => navigate(`/task/${task.id}`)}>
           Edit
         </button>
-
         <button className="delete" onClick={confirmDelete}>
           Delete
         </button>
