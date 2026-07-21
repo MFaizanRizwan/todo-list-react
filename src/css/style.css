@@ -39,17 +39,167 @@ body {
     margin-right: auto;
 }
 
-.todo-viewer {
-    min-height: 60vh;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+/* ── Todo Panel (fixed-height scrollable container) ─── */
+.todo-panel {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    overflow: hidden;
+}
+
+.todo-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+.todo-panel-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.todo-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+}
+
+.todo-list::-webkit-scrollbar {
+    width: 5px;
+}
+.todo-list::-webkit-scrollbar-track { background: transparent; }
+.todo-list::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 99px;
+}
+
+.todo-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+    background: #fafafa;
+    border-radius: 0 0 20px 20px;
+}
+
+.task-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.no-tasks-msg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    color: #9CA3AF;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 2rem;
+}
+
+/* ── Task Row ────────────────────────────────────────── */
+.task-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: default;
+    min-height: 56px;
+}
+
+.task-row:hover {
+    transform: translateX(3px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.task-row-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.task-row-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-row-meta {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    font-weight: 500;
+}
+
+.task-row-priority {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.priority-high   { background: #FEE2E2; color: #DC2626; }
+.priority-medium { background: #FEF3C7; color: #D97706; }
+.priority-low    { background: #D1FAE5; color: #065F46; }
+
+.task-row-progress {
+    width: 80px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.task-row-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.task-row-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.task-row-actions .view-detail-btn,
+.task-row-actions .edit,
+.task-row-actions .delete {
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    flex: none;
+    border-radius: 6px;
 }
 
 .create-task-btn {
@@ -73,42 +223,10 @@ body {
     box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-.task {
-    background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 10px 15px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.04) !important;
-    border-top: 6px solid var(--blue-primary) !important;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
 
-.task:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05), 0 15px 30px rgba(0, 0, 0, 0.05);
-}
-
-.task h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 4px;
-}
-
-.task p {
-    font-size: 0.9rem;
-    color: #4b5563;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.view-detail-btn, .edit, .delete {
+.view-detail-btn,
+.edit,
+.delete {
     outline: none;
     border: none;
     padding: 10px 16px;
@@ -124,19 +242,28 @@ body {
     background-color: #FEF3C7;
     color: #D97706;
 }
-.view-detail-btn:hover { background-color: #FDE68A; }
+
+.view-detail-btn:hover {
+    background-color: #FDE68A;
+}
 
 .edit {
     background-color: #DBEAFE;
     color: #2563EB;
 }
-.edit:hover { background-color: #BFDBFE; }
+
+.edit:hover {
+    background-color: #BFDBFE;
+}
 
 .delete {
     background-color: #FEE2E2;
     color: #DC2626;
 }
-.delete:hover { background-color: #FECACA; }
+
+.delete:hover {
+    background-color: #FECACA;
+}
 
 .action-buttons {
     display: flex;
@@ -146,24 +273,24 @@ body {
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin-top: 1rem;
-  align-self: center;
-  gap: 12px;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    align-self: center;
+    gap: 12px;
+    align-items: center;
 }
 
 .pagination button {
-  padding: 8px 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .pagination button:disabled {
@@ -189,4 +316,92 @@ body {
     color: #9CA3AF;
     font-size: 1.5rem;
     font-weight: 600;
+}
+
+/* ── Chart Panel ────────────────────────────────────── */
+.chart-panel {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+    border-radius: 20px;
+    padding: 1.75rem 2rem;
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.chart-panel-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.chart-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.chart-subtitle {
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.chart-stats {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.stat-badge .stat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.stat-finished {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.stat-finished .stat-dot {
+    background: #10B981;
+}
+
+.stat-pending {
+    background: #EEF2FF;
+    color: #3730A3;
+}
+
+.stat-pending .stat-dot {
+    background: #6366F1;
+}
+
+.chart-wrapper {
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.chart-empty {
+    color: #9CA3AF;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
 }
