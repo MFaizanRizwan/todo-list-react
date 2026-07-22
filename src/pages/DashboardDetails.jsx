@@ -2,45 +2,55 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
-import { getTasks } from "../services/task_services/getTasks";
-import { deleteTask } from "../services/task_services/deleteTask";
+import { fetchAllTasks, removeTask } from "../store/tasksSlice";
 import { getUsers } from "../services/user_services/getUsers";
+import { useDispatch, useSelector } from "react-redux";
 
 function DashboardDetails() {
     const navigate = useNavigate();
-    const [tasks, setTasks] = useState([]);
+    const dispatch = useDispatch();
+
     const [users, setUsers] = useState([]);
+    const { items: tasksList, status: tasksStatus } = useSelector((state) => state.tasks);
 
     useEffect(() => {
         document.title = "TODO App | Dashboard Data Page";
-        loadData();
-    }, []);
+        if (tasksStatus === 'idle') {
+            dispatch(fetchAllTasks());
+        }
+    }, [dispatch, tasksStatus]);
 
-    const loadData = async () => {
-        const tasksList = await getTasks();
-        const allUsers = await getUsers();
-        const usersList = allUsers.filter(user => user.role === "user");
+    useEffect(() => {
+        if (tasksStatus === 'succeeded') {
+            async function loadUsersAndCalculateCounts() {
+                try {
+                    const allUsers = await getUsers();
+                    const usersList = allUsers.filter(user => user.role === "user");
 
-        const userTaskCounts = {};
-        tasksList.forEach(task => {
-            if (task.author) {
-                userTaskCounts[task.author] = (userTaskCounts[task.author] || 0) + 1;
+                    const userTaskCounts = {};
+                    tasksList.forEach(task => {
+                        if (task.author) {
+                            userTaskCounts[task.author] = (userTaskCounts[task.author] || 0) + 1;
+                        }
+                    });
+
+                    const augmentedUsers = usersList.map(user => ({
+                        ...user,
+                        taskCount: userTaskCounts[user.id] || 0
+                    }));
+
+                    setUsers(augmentedUsers);
+                } catch (error) {
+                    console.error("Error loading users:", error);
+                }
             }
-        });
-
-        const augmentedUsers = usersList.map(user => ({
-            ...user,
-            taskCount: userTaskCounts[user.id] || 0
-        }));
-
-        setTasks(tasksList);
-        setUsers(augmentedUsers);
-    };
+            loadUsersAndCalculateCounts();
+        }
+    }, [tasksStatus, tasksList]);
 
     const confirmDeleteTask = async (id) => {
         if (window.confirm("Are you sure you want to delete this task?")) {
-            await deleteTask(id);
-            loadData();
+            await dispatch(removeTask(id));
         }
     };
 
@@ -74,7 +84,7 @@ function DashboardDetails() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {tasks.map((task, index) => (
+                                {tasksList.map((task, index) => (
                                     <tr key={task.id} className="dashboard-tr">
                                         <td className="dashboard-td">{index + 1}</td>
                                         <td className="dashboard-td">{task.name}</td>
@@ -92,7 +102,7 @@ function DashboardDetails() {
                                         </td>
                                     </tr>
                                 ))}
-                                {tasks.length === 0 && (
+                                {tasksList.length === 0 && (
                                     <tr>
                                         <td colSpan="4" className="dashboard-td" style={{ textAlign: "center" }}>No tasks found</td>
                                     </tr>
