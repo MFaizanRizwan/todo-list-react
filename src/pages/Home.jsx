@@ -4,37 +4,32 @@ import TaskCard from "./../components/TaskCard";
 import Navbar from "./../components/Navbar";
 import TaskChart from "./../components/TaskChart";
 import "./../css/style.css";
-import { getTasksByUser } from "../services/task_services/getTaskByUsername";
-import { deleteTask as deleteTaskService } from "../services/task_services/deleteTask";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserTasks, removeTask } from "../store/tasksSlice";
 
 function Home() {
   const navigate = useNavigate();
   const username = localStorage.getItem("authToken");
 
+  const dispatch = useDispatch();
+  const { items: tasks, status } = useSelector((state) => state.tasks);
+
   useEffect(() => {
-    const loadTasks = async () => {
+    if (localStorage.getItem("userRole") !== "user" || !username) {
+      navigate("/login");
+      return;
+    }
+    if (status === 'idle') {
+      dispatch(fetchUserTasks(username));
+    }
+  }, [navigate, dispatch, status, username]);
 
-      if (localStorage.getItem("userRole") !== "user" || !username) {
-        navigate("/login");
-        return;
-      }
-
-      const userTasks = await getTasksByUser(username);
-      setTasks(userTasks);
-    };
-
-    loadTasks();
-  }, [navigate]);
-
-  const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-
   async function deleteTask(id) {
     try {
-      await deleteTaskService(id);
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      await dispatch(removeTask(id)).unwrap();
     } catch (error) {
       alert("Unable to delete task.");
     }
