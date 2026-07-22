@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux";
 
 function ProtectedRoute({ allowedRoles }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = useSelector((state) => state.auth);
   const location = useLocation();
 
   if (loading) return <div>Loading...</div>;
