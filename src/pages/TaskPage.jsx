@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TaskForm from "../components/TaskForm";
-import { addTask } from "../services/task_services/addTask";
-import { updateTask } from "../services/task_services/updateTask";
-import { getTaskById } from "../services/task_services/getTaskById";
+import { useDispatch, useSelector } from "react-redux";
+import { addNewTask, editTask } from "../store/tasksSlice";
 import "../css/add.css";
 
 const EMPTY_TASK = {
@@ -23,55 +22,40 @@ const EMPTY_TASK = {
     priority: "Low",
 };
 
-/**
- * TaskPage — single page for both Add and Edit.
- *
- * Route /task        → add mode  (no :id param)
- * Route /task/:id    → edit mode (fetches task by id)
- */
 function TaskPage() {
-    const { id } = useParams();           // undefined when adding, string when editing
+    const { id } = useParams();
     const isEdit = Boolean(id);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const [task, setTask] = useState(EMPTY_TASK);
     const [originalTask, setOriginalTask] = useState(null);
-    const [loadingTask, setLoadingTask] = useState(isEdit); // only wait when editing
+    const [loadingTask, setLoadingTask] = useState(isEdit);
     const [submitting, setSubmitting] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
-    // ── Load existing task when in edit mode ──────────────────────────────────
+    const LoadedTask = useSelector((state) =>
+        state.tasks.items.find(t => t.id === id)
+    );
+
     useEffect(() => {
         if (!isEdit) return;
 
-        async function loadTask() {
-            try {
-                const loaded = await getTaskById(id);
-                if (!loaded) {
-                    alert("Task not found.");
-                    navigate(-1);
-                    return;
-                }
-                const seeded = {
-                    ...loaded,
-                    emailNotification: loaded.notificationMethod?.includes("Email") || false,
-                    smsNotification: loaded.notificationMethod?.includes("SMS") || false,
-                };
-                setTask(seeded);
-                setOriginalTask(seeded);
-            } catch (err) {
-                console.error("Error loading task:", err);
-                alert("Error loading task.");
-                navigate(-1);
-            } finally {
-                setLoadingTask(false);
-            }
+        if (LoadedTask) {
+            const seeded = {
+                ...LoadedTask,
+                emailNotification: LoadedTask.notificationMethod?.includes("Email") || false,
+                smsNotification: LoadedTask.notificationMethod?.includes("SMS") || false,
+            };
+            setTask(seeded);
+            setOriginalTask(seeded);
+            setLoadingTask(false);
+        } else {
+            alert("Task not found in Redux state.");
+            navigate(-1);
         }
+    }, [id, isEdit, navigate, LoadedTask]);
 
-        loadTask();
-    }, [id, isEdit, navigate]);
-
-    // ── Handlers ──────────────────────────────────────────────────────────────
 
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
@@ -126,7 +110,7 @@ function TaskPage() {
             originalTask.priority !== task.priority ||
             originalTask.boxColor !== task.boxColor ||
             JSON.stringify(originalTask.notificationMethod || []) !==
-                JSON.stringify(task.notificationMethod || [])
+            JSON.stringify(task.notificationMethod || [])
         );
     }
 
@@ -157,9 +141,9 @@ function TaskPage() {
         setSubmitting(true);
         try {
             if (isEdit) {
-                await updateTask(id, { ...payload, author: task.author });
+                await dispatch(editTask({ id, updatedData: { ...payload, author: task.author } })).unwrap();
             } else {
-                await addTask({ ...payload, author: localStorage.getItem("authToken") });
+                await dispatch(addNewTask({ ...payload, author: localStorage.getItem("authToken") })).unwrap();
                 setTask(EMPTY_TASK); // Reset form for next entry
             }
             setShowModal(true);
