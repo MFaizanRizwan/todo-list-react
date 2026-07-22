@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../services/firebase";
 import "../css/navbar.css";
 
 function Navbar({ showSearch = false, search, onSearchChange }) {
     const navigate = useNavigate();
 
-    function handleLogout() {
+    async function handleLogout() {
+        await signOut(auth);
         localStorage.removeItem("authToken");
         localStorage.removeItem("userRole");
         navigate("/login");
