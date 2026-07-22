@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/authSlice";
 import "../css/login.css";
 
 function Login() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,6 +31,11 @@ function Login() {
 
             localStorage.setItem("authToken", user.uid);
             localStorage.setItem("userRole", role);
+
+            dispatch(setUser({
+                user: { uid: user.uid, email: user.email },
+                role
+            }));
 
             if (role === "user") {
                 navigate("/");
