@@ -1,37 +1,45 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getTasks } from "../services/task_services/getTasks";
-import { getTasksByUser } from "../services/task_services/getTaskByUsername";
-import { addTask as addTaskService } from "../services/task_services/addTask";
-import { updateTask as updateTaskService } from "../services/task_services/updateTask";
-import { deleteTask as deleteTaskService } from "../services/task_services/deleteTask";
-import { getTaskById } from "../services/task_services/getTaskById";
+import { createSlice, createAsyncThunk, isPending, isFulfilled, isRejected } from '@reduxjs/toolkit';
+import { getThunkFn } from "./thunkConfig";
 
-export const fetchUserTasks = createAsyncThunk('tasks/fetchUserTasks', async (uid) => {
-    return await getTasksByUser(uid);
-});
+export const createConfiguredThunk = (name) =>
+    createAsyncThunk(`tasks/${name}`, async (arg) => {
+        const thunkFn = getThunkFn(name);
+        return await thunkFn(arg);
+    });
 
-export const fetchAllTasks = createAsyncThunk('tasks/fetchAllTasks', async () => {
-    return await getTasks();
-});
+const applyFulfilledPayload = (state, payload) => {
+    if (Array.isArray(payload)) {
+        state.items = payload;
+        return;
+    }
 
-export const fetchTaskById = createAsyncThunk('tasks/fetchTaskById', async (taskId) => {
-    return await getTaskById(taskId);
-});
+    if (payload === null) {
+        state.selectedTask = null;
+        return;
+    }
 
-export const addNewTask = createAsyncThunk('tasks/addNewTask', async (taskData) => {
-    const newId = await addTaskService(taskData);
-    return { ...taskData, id: newId };
-});
+    if (typeof payload !== 'object') {
+        state.items = state.items.filter(task => task.id !== payload);
+        return;
+    }
 
-export const editTask = createAsyncThunk('tasks/editTask', async ({ id, updatedData }) => {
-    await updateTaskService(id, updatedData);
-    return { id, updatedData };
-});
+    if ('updatedData' in payload) {
+        const { id, updatedData } = payload;
+        const existingTask = state.items.find(task => task.id === id);
+        if (existingTask) {
+            Object.assign(existingTask, updatedData);
+        }
+        return;
+    }
 
-export const removeTask = createAsyncThunk('tasks/removeTask', async (id) => {
-    await deleteTaskService(id);
-    return id;
-});
+    const existingTask = state.items.find(task => task.id === payload.id);
+    if (existingTask) {
+        Object.assign(existingTask, payload);
+    } else {
+        state.items.push(payload);
+    }
+    state.selectedTask = payload;
+};
 
 const tasksSlice = createSlice({
     name: 'tasks',
@@ -39,10 +47,7 @@ const tasksSlice = createSlice({
         items: [],
         selectedTask: null,
         status: 'idle',
-        error: null,
-        loading: {},
         error: {},
-        params: {}
     },
     reducers: {
         clearSelectedTask: (state) => {
@@ -51,64 +56,17 @@ const tasksSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUserTasks.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchUserTasks.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.items = action.payload;
-            })
-            .addCase(fetchUserTasks.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
-
-            .addCase(fetchAllTasks.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchAllTasks.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.items = action.payload;
-            })
-            .addCase(fetchAllTasks.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
-
-            .addCase(fetchTaskById.pending, (state) => {
+            .addMatcher(isPending, (state) => {
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(fetchTaskById.fulfilled, (state, action) => {
+            .addMatcher(isFulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.selectedTask = action.payload;
-
-                if (action.payload) {
-                    const existingTask = state.items.find(task => task.id === action.payload.id);
-                    if (existingTask) {
-                        Object.assign(existingTask, action.payload);
-                    } else {
-                        state.items.push(action.payload);
-                    }
-                }
+                applyFulfilledPayload(state, action.payload);
             })
-            .addCase(fetchTaskById.rejected, (state, action) => {
+            .addMatcher(isRejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
-            })
-
-            .addCase(addNewTask.fulfilled, (state, action) => {
-                state.items.push(action.payload);
-            })
-            .addCase(editTask.fulfilled, (state, action) => {
-                const { id, updatedData } = action.payload;
-                const existingTask = state.items.find(task => task.id === id);
-                if (existingTask) {
-                    Object.assign(existingTask, updatedData);
-                }
-            })
-            .addCase(removeTask.fulfilled, (state, action) => {
-                state.items = state.items.filter(task => task.id !== action.payload);
             });
     }
 });
