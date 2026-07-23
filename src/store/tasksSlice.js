@@ -1,44 +1,54 @@
-import { createSlice, createAsyncThunk, isPending, isFulfilled, isRejected } from '@reduxjs/toolkit';
-import { getThunkFn } from "./thunkConfig";
+import { getTasks } from "../services/task_services/getTasks";
+import { getTasksByUser } from "../services/task_services/getTaskByUsername";
+import { addTask } from "../services/task_services/addTask";
+import { updateTask } from "../services/task_services/updateTask";
+import { deleteTask } from "../services/task_services/deleteTask";
+import { getTaskById } from "../services/task_services/getTaskById";
 
-export const createConfiguredThunk = (name) =>
-    createAsyncThunk(`tasks/${name}`, async (arg) => {
-        const thunkFn = getThunkFn(name);
-        return await thunkFn(arg);
-    });
+import { createSlice, createAsyncThunk, isPending, isFulfilled, isRejected, createAction } from '@reduxjs/toolkit';
 
-const applyFulfilledPayload = (state, payload) => {
-    if (Array.isArray(payload)) {
-        state.items = payload;
-        return;
+const fetchUserTasks = createAsyncThunk('tasks/fetchUserTasks', async (uid) => {
+    return await getTasksByUser(uid);
+});
+
+const fetchAllTasks = createAsyncThunk('tasks/fetchAllTasks', async () => {
+    return await getTasks();
+});
+
+const fetchTaskById = createAsyncThunk('tasks/fetchTaskById', async (taskId) => {
+    return await getTaskById(taskId);
+});
+
+const addNewTask = createAsyncThunk('tasks/addNewTask', async (taskData) => {
+    const newId = await addTask(taskData);
+    return { ...taskData, id: newId };
+});
+
+const editTask = createAsyncThunk('tasks/editTask', async ({ id, updatedData }) => {
+    await updateTask(id, updatedData);
+    return { id, updatedData };
+});
+
+const removeTask = createAsyncThunk('tasks/removeTask', async (id) => {
+    await deleteTask(id);
+    return id;
+});
+
+const thunkProvider = {
+    fetchUserTasks,
+    fetchAllTasks,
+    fetchTaskById,
+    addNewTask,
+    editTask,
+    removeTask
+}
+
+export const getTaskThunk = (name) => {
+    const thunkFn = thunkProvider[name];
+    if (!thunkFn) {
+        throw new Error(`No async function registered for "${name}"`);
     }
-
-    if (payload === null) {
-        state.selectedTask = null;
-        return;
-    }
-
-    if (typeof payload !== 'object') {
-        state.items = state.items.filter(task => task.id !== payload);
-        return;
-    }
-
-    if ('updatedData' in payload) {
-        const { id, updatedData } = payload;
-        const existingTask = state.items.find(task => task.id === id);
-        if (existingTask) {
-            Object.assign(existingTask, updatedData);
-        }
-        return;
-    }
-
-    const existingTask = state.items.find(task => task.id === payload.id);
-    if (existingTask) {
-        Object.assign(existingTask, payload);
-    } else {
-        state.items.push(payload);
-    }
-    state.selectedTask = payload;
+    return thunkFn;
 };
 
 const tasksSlice = createSlice({
@@ -46,8 +56,22 @@ const tasksSlice = createSlice({
     initialState: {
         items: [],
         selectedTask: null,
-        status: 'idle',
-        error: {},
+        error: {
+            fetchUserTasks: null,
+            fetchAllTasks: null,
+            fetchTaskById: null,
+            addNewTask: null,
+            editTask: null,
+            removeTask: null
+        },
+        pending: {
+            fetchUserTasks: false,
+            fetchAllTasks: false,
+            fetchTaskById: false,
+            addNewTask: false,
+            editTask: false,
+            removeTask: false
+        },
     },
     reducers: {
         clearSelectedTask: (state) => {
@@ -56,17 +80,55 @@ const tasksSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addMatcher(isPending, (state) => {
-                state.status = 'loading';
-                state.error = null;
+            .addCase(fetchUserTasks.fulfilled, (state, action) => {
+                state.items = action.payload;
             })
-            .addMatcher(isFulfilled, (state, action) => {
-                state.status = 'succeeded';
-                applyFulfilledPayload(state, action.payload);
+
+            .addCase(fetchAllTasks.fulfilled, (state, action) => {
+                state.items = action.payload;
             })
-            .addMatcher(isRejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+
+            .addCase(fetchTaskById.fulfilled, (state, action) => {
+                state.selectedTask = action.payload;
+            })
+
+            .addCase(addNewTask.fulfilled, (state, action) => {
+                state.items.push(action.payload);
+            })
+
+            .addCase(editTask.fulfilled, (state, action) => {
+                const { id, updatedData } = action.payload;
+                const index = state.items.findIndex(task => task.id === id);
+                if (index !== -1) {
+                    state.items[index] = { ...state.items[index], ...updatedData };
+                }
+            })
+
+            .addCase(removeTask.fulfilled, (state, action) => {
+                const idToRemove = action.payload;
+                state.items = state.items.filter(task => task.id !== idToRemove);
+            })
+
+            .addMatcher((action) => {
+                return action.type.startsWith('tasks/') && (isPending(action) || isFulfilled(action) || isRejected(action));
+            }, (state, action) => {
+                const actionName = action.type.split('/')[1];
+                const actionType = action.type.split('/')[2];
+
+                if (actionType === 'pending') {
+                    state.pending[actionName] = true;
+                    state.error[actionName] = null;
+                }
+
+                else if (actionType === 'fulfilled') {
+                    state.pending[actionName] = false;
+                    state.error[actionName] = null;
+                }
+
+                else if (actionType === 'rejected') {
+                    state.pending[actionName] = false;
+                    state.error[actionName] = action.error.message;
+                }
             });
     }
 });
