@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
-import { createConfiguredThunk } from "../store/tasksSlice";
+import { getTaskThunk } from "../store/tasksSlice";
 
-const fetchAllTasks = createConfiguredThunk('fetchAllTasks');
-const removeTask = createConfiguredThunk('removeTask');
+const fetchAllTasks = getTaskThunk('fetchAllTasks');
+const removeTask = getTaskThunk('removeTask');
 import { getUsers } from "../services/user_services/getUsers";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,17 +14,17 @@ function DashboardDetails() {
     const dispatch = useDispatch();
 
     const [users, setUsers] = useState([]);
-    const { items: tasksList, status: tasksStatus } = useSelector((state) => state.tasks);
+    const { items: tasksList, pending, error } = useSelector((state) => state.tasks);
 
     useEffect(() => {
         document.title = "TODO App | Dashboard Data Page";
-        if (tasksStatus === 'idle') {
+        if (!pending.fetchAllTasks && tasksList.length === 0 && !error.fetchAllTasks) {
             dispatch(fetchAllTasks());
         }
-    }, [dispatch, tasksStatus]);
+    }, [dispatch, pending.fetchAllTasks, error.fetchAllTasks, tasksList.length]);
 
     useEffect(() => {
-        if (tasksStatus === 'succeeded') {
+        if (!pending.fetchAllTasks && !error.fetchAllTasks) {
             async function loadUsersAndCalculateCounts() {
                 try {
                     const allUsers = await getUsers();
@@ -43,13 +43,13 @@ function DashboardDetails() {
                     }));
 
                     setUsers(augmentedUsers);
-                } catch (error) {
-                    console.error("Error loading users:", error);
+                } catch (err) {
+                    console.error("Error loading users:", err);
                 }
             }
             loadUsersAndCalculateCounts();
         }
-    }, [tasksStatus, tasksList]);
+    }, [pending.fetchAllTasks, error.fetchAllTasks, tasksList]);
 
     const confirmDeleteTask = async (id) => {
         if (!window.confirm("Are you sure you want to delete this task?")) return;

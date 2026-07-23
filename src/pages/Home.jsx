@@ -5,27 +5,27 @@ import Navbar from "./../components/Navbar";
 import TaskChart from "./../components/TaskChart";
 import "./../css/style.css";
 import { useDispatch, useSelector } from "react-redux";
-import { createConfiguredThunk } from "../store/tasksSlice";
+import { getTaskThunk } from "../store/tasksSlice";
 
-const fetchUserTasks = createConfiguredThunk('fetchUserTasks');
-const removeTask = createConfiguredThunk('removeTask');
+const fetchUserTasks = getTaskThunk('fetchUserTasks');
+const removeTask = getTaskThunk('removeTask');
 
 function Home() {
   const navigate = useNavigate();
   const username = localStorage.getItem("authToken");
 
   const dispatch = useDispatch();
-  const { items: tasks, status } = useSelector((state) => state.tasks);
+  const { items: tasks, pending, error } = useSelector((state) => state.tasks);
 
   useEffect(() => {
     if (localStorage.getItem("userRole") !== "user" || !username) {
       navigate("/login");
       return;
     }
-    if (status === 'idle') {
+    if (!pending.fetchUserTasks && tasks.length === 0 && !error.fetchUserTasks) {
       dispatch(fetchUserTasks(username));
     }
-  }, [navigate, dispatch, status, username]);
+  }, [navigate, dispatch, pending.fetchUserTasks, error.fetchUserTasks, tasks.length, username]);
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +64,7 @@ function Home() {
       />
 
       <main className="home-main">
-
+{/* list provider// or list renderer  */}
         <div className="todo-panel">
           <div className="todo-panel-header">
             <h2 className="todo-panel-title">My Tasks</h2>
@@ -74,7 +74,9 @@ function Home() {
           </div>
 
           <div className="todo-list">
-            {currentTasks.length === 0 ? (
+            {pending.fetchUserTasks ? (
+              <p className="no-tasks-msg">Loading tasks...</p>
+            ) : currentTasks.length === 0 ? (
               <p className="no-tasks-msg">No tasks found.</p>
             ) : (
               currentTasks.map((task) => (

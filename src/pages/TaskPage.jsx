@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TaskForm from "../components/TaskForm";
 import { useDispatch, useSelector } from "react-redux";
-import { createConfiguredThunk } from "../store/tasksSlice";
+import { getTaskThunk } from "../store/tasksSlice";
 
-const addNewTask = createConfiguredThunk('addNewTask');
-const editTask = createConfiguredThunk('editTask');
-const fetchTaskById = createConfiguredThunk('fetchTaskById');
+const addNewTask = getTaskThunk('addNewTask');
+const editTask = getTaskThunk('editTask');
+const fetchTaskById = getTaskThunk('fetchTaskById');
 import "../css/add.css";
 
 const EMPTY_TASK = {
@@ -37,9 +37,8 @@ function TaskPage() {
     const [submitting, setSubmitting] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
-    const LoadedTask = useSelector((state) =>
-        state.tasks.items.find(t => t.id === id)
-    );
+    const { items: taskItems, pending } = useSelector((state) => state.tasks);
+    const LoadedTask = taskItems.find(t => t.id === id);
 
     useEffect(() => {
         if (!isEdit) return;
@@ -152,7 +151,7 @@ function TaskPage() {
         }
     }
 
-    if (isEdit && !LoadedTask) {
+    if (isEdit && (pending.fetchTaskById || !LoadedTask)) {
         return <h2 style={{ padding: "2rem" }}>Loading task...</h2>;
     }
 

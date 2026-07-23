@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearSelectedTask, createConfiguredThunk } from "../store/tasksSlice";
+import { clearSelectedTask, getTaskThunk } from "../store/tasksSlice";
 
-const fetchTaskById = createConfiguredThunk('fetchTaskById');
+const fetchTaskById = getTaskThunk('fetchTaskById');
 import "../css/details.css";
 
 function Details() {
@@ -11,7 +11,7 @@ function Details() {
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    const { selectedTask: task, status, error } = useSelector((state) => state.tasks);
+    const { selectedTask: task, pending, error } = useSelector((state) => state.tasks);
 
     useEffect(() => {
         if (!id) return;
@@ -25,13 +25,13 @@ function Details() {
     }, [dispatch, id]);
 
     useEffect(() => {
-        if (status === "failed") {
-            alert(error || "Task not found.");
+        if (error.fetchTaskById) {
+            alert(error.fetchTaskById || "Task not found.");
             navigate("/");
         }
-    }, [status, error, navigate]);
+    }, [error.fetchTaskById, navigate]);
 
-    if (status === "loading") {
+    if (pending.fetchTaskById) {
         return <h2>Loading...</h2>;
     }
 
