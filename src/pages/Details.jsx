@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearSelectedTask, fetchTaskById } from "../store/tasksSlice";
+import { clearSelectedTask, createConfiguredThunk } from "../store/tasksSlice";
+
+const fetchTaskById = createConfiguredThunk('fetchTaskById');
 import "../css/details.css";
 
 function Details() {
@@ -9,12 +11,11 @@ function Details() {
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    const task = useSelector((state) => state.tasks.selectedTask);
-    const status = useSelector((state) => state.tasks.status);
-    const error = useSelector((state) => state.tasks.error);
+    const { selectedTask: task, status, error } = useSelector((state) => state.tasks);
 
     useEffect(() => {
         if (!id) return;
+        if (task?.id === id) return;
 
         dispatch(fetchTaskById(id));
 

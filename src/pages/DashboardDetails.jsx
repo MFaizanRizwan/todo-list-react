@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../css/dashboard.css";
-import { fetchAllTasks, removeTask } from "../store/tasksSlice";
+import { createConfiguredThunk } from "../store/tasksSlice";
+
+const fetchAllTasks = createConfiguredThunk('fetchAllTasks');
+const removeTask = createConfiguredThunk('removeTask');
 import { getUsers } from "../services/user_services/getUsers";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -49,8 +52,11 @@ function DashboardDetails() {
     }, [tasksStatus, tasksList]);
 
     const confirmDeleteTask = async (id) => {
-        if (window.confirm("Are you sure you want to delete this task?")) {
-            await dispatch(removeTask(id));
+        if (!window.confirm("Are you sure you want to delete this task?")) return;
+        try {
+            await dispatch(removeTask(id)).unwrap();
+        } catch {
+            alert("Failed to delete task. Please try again.");
         }
     };
 

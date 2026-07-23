@@ -3,7 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TaskForm from "../components/TaskForm";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewTask, editTask } from "../store/tasksSlice";
+import { createConfiguredThunk } from "../store/tasksSlice";
+
+const addNewTask = createConfiguredThunk('addNewTask');
+const editTask = createConfiguredThunk('editTask');
+const fetchTaskById = createConfiguredThunk('fetchTaskById');
 import "../css/add.css";
 
 const EMPTY_TASK = {
@@ -30,7 +34,6 @@ function TaskPage() {
 
     const [task, setTask] = useState(EMPTY_TASK);
     const [originalTask, setOriginalTask] = useState(null);
-    const [loadingTask, setLoadingTask] = useState(isEdit);
     const [submitting, setSubmitting] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -49,12 +52,10 @@ function TaskPage() {
             };
             setTask(seeded);
             setOriginalTask(seeded);
-            setLoadingTask(false);
         } else {
-            alert("Task not found in Redux state.");
-            navigate(-1);
+            dispatch(fetchTaskById(id));
         }
-    }, [id, isEdit, navigate, LoadedTask]);
+    }, [id, isEdit, dispatch, LoadedTask]);
 
 
     function handleChange(e) {
@@ -81,8 +82,6 @@ function TaskPage() {
             return { ...prev, [name]: checked, notificationMethod: methods };
         });
     }
-
-    // ── Validation ────────────────────────────────────────────────────────────
 
     function validate() {
         if (!task.name || !task.startDate || !task.dueDate) {
@@ -113,8 +112,6 @@ function TaskPage() {
             JSON.stringify(task.notificationMethod || [])
         );
     }
-
-    // ── Submit ────────────────────────────────────────────────────────────────
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -155,9 +152,7 @@ function TaskPage() {
         }
     }
 
-    // ── Render ────────────────────────────────────────────────────────────────
-
-    if (loadingTask) {
+    if (isEdit && !LoadedTask) {
         return <h2 style={{ padding: "2rem" }}>Loading task...</h2>;
     }
 

@@ -5,7 +5,10 @@ import Navbar from "./../components/Navbar";
 import TaskChart from "./../components/TaskChart";
 import "./../css/style.css";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserTasks, removeTask } from "../store/tasksSlice";
+import { createConfiguredThunk } from "../store/tasksSlice";
+
+const fetchUserTasks = createConfiguredThunk('fetchUserTasks');
+const removeTask = createConfiguredThunk('removeTask');
 
 function Home() {
   const navigate = useNavigate();
