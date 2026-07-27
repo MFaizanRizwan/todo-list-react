@@ -3,7 +3,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../services/firebase";
 import "../css/navbar.css";
 
-function Navbar({ showSearch = false, search, onSearchChange }) {
+function Navbar() {
     const navigate = useNavigate();
 
     async function handleLogout() {
@@ -27,18 +27,6 @@ function Navbar({ showSearch = false, search, onSearchChange }) {
             <div className="navbar-brand" onClick={handleLogoClick}>
                 <h2>Todo App</h2>
             </div>
-            
-            {showSearch && (
-                <div className="navbar-search">
-                    <input
-                        type="search"
-                        className="premium-search-bar"
-                        placeholder="Search tasks..."
-                        value={search}
-                        onChange={onSearchChange}
-                    />
-                </div>
-            )}
 
             <div className="navbar-actions">
                 <button className="premium-logout-btn" onClick={handleLogout}>
