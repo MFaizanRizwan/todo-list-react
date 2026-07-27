@@ -65,7 +65,7 @@ function Dashboard() {
 
     return (
         <div className="dashboard-page-wrapper">
-            <Navbar showSearch={false} />
+            <Navbar />
             <main className="hero-section">
                 <div className="sidebar-section">
                     <h2>Navigation</h2>
