@@ -1,12 +1,14 @@
 import { collection, doc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
+const tasksCollection = collection(db, "tasks");
+
 export const getTasks = async () => {
     try {
-        const snapshot = await getDocs(collection(db, "tasks"));
+        const snapshot = await getDocs(tasksCollection);
 
         return snapshot.docs.map(doc => ({
-            firestoreId: doc.id,
+            id: doc.id,
             ...doc.data()
         }));
     }

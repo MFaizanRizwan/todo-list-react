@@ -1,7 +1,7 @@
-import { collection, deleteDoc } from "firebase/firestore";
+import { doc, collection, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-export const deleteTask = async (task) => {
+async function deleteTask(taskId) {
     try {
         const taskDocRef = doc(db, "tasks", taskId);
         await deleteDoc(taskDocRef);
@@ -10,4 +10,6 @@ export const deleteTask = async (task) => {
         console.error("Error deleting task:", error);
         throw error;
     }
-};
+}
+
+export { deleteTask };

@@ -1,51 +1,52 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { auth } from "../services/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/authSlice";
 import "../css/login.css";
 
 function Login() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         document.title = "TODO App | Login";
     }, []);
 
-    function validateUser(username, password) {
-        let usersList = JSON.parse(localStorage.getItem("Users")) || [];
+    async function handleLogin() {
+        setLoading(true);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-        return usersList.find(
-            (user) => user.username === username && user.password === password
-        );
-    }
-
-    function getData(user) {
-        return {
-            token: user.username,
-            role: user.role,
-        };
-    }
-
-    function handleLogin() {
-        const user = validateUser(username, password);
-
-        if (user) {
-            const data = getData(user);
+            const role = email === import.meta.env.VITE_FIREBASE_ADMIN_EMAIL ? "admin" : "user";
 
             localStorage.removeItem("authToken");
             localStorage.removeItem("userRole");
 
-            localStorage.setItem("authToken", data.token);
-            localStorage.setItem("userRole", data.role);
+            localStorage.setItem("authToken", user.uid);
+            localStorage.setItem("userRole", role);
 
-            if (data.role === "user") {
+            dispatch(setUser({
+                user: { uid: user.uid, email: user.email },
+                role
+            }));
+
+            if (role === "user") {
                 navigate("/");
             } else {
                 navigate("/dashboard");
             }
-        } else {
-            alert("Password or username mismatch");
+        } catch (error) {
+            console.error("Error logging in:", error);
+            alert("Invalid email or password");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -61,21 +62,23 @@ function Login() {
                     <h1 className="login-title">Login</h1>
 
                     <input
-                        type="text"
+                        type="email"
                         className="login-text-input"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)} />
+                        placeholder="Email Address"
+                        value={email}
+                        required
+                        onChange={(e) => setEmail(e.target.value)} />
 
                     <input
                         type="password"
                         className="login-text-input"
                         placeholder="Password"
                         value={password}
+                        required
                         onChange={(e) => setPassword(e.target.value)} />
 
-                    <button type="submit" className="login-submit-btn">
-                        Login
+                    <button type="submit" className="login-submit-btn" disabled={loading}>
+                        {loading ? "Logging in..." : "Login"}
                     </button>
 
                     <p>

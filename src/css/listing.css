@@ -1,49 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-:root {
-    --blue-primary: #4F46E5;
-    --white-primary: #ffffff;
-    --blue-border: #6366F1;
-    --black-border: #111827;
-    --coral-blue: #E0E7FF;
-    --dark-green: #065F46;
-    --light-green: #10B981;
-    --add-btn: #4F46E5;
-    --view-detail-btn: #F59E0B;
-    --edit-btn: #3B82F6;
-    --hover-add-btn: #4338CA;
-    --success: #10B981;
-    --error: #EF4444;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-body {
-    background: #f4f7fa;
-    color: #1f2937;
-}
-
-.home-main {
-    margin-top: 2rem;
-    display: flex;
-    flex-direction: column;
-    padding: 0 5%;
-    gap: 1.5rem;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* ── Todo Panel (fixed-height scrollable container) ───
+/* ── Todo Panel (fixed-height scrollable container) ─── */
 .todo-panel {
     background: #ffffff;
     border-radius: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.07);
+    border: 1px solid rgba(99, 102, 241, 0.15);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
@@ -58,6 +17,14 @@ body {
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    min-width: 220px;
+    font-size: 0.95rem;
 }
 
 .todo-panel-title {
@@ -316,92 +283,4 @@ body {
     color: #9CA3AF;
     font-size: 1.5rem;
     font-weight: 600;
-}
-
-/* ── Chart Panel ────────────────────────────────────── */
-.chart-panel {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
-    border-radius: 20px;
-    padding: 1.75rem 2rem;
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-.chart-panel-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.chart-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-}
-
-.chart-subtitle {
-    font-size: 0.875rem;
-    color: #6B7280;
-    font-weight: 500;
-}
-
-.chart-stats {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.stat-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-.stat-badge .stat-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.stat-finished {
-    background: #D1FAE5;
-    color: #065F46;
-}
-
-.stat-finished .stat-dot {
-    background: #10B981;
-}
-
-.stat-pending {
-    background: #EEF2FF;
-    color: #3730A3;
-}
-
-.stat-pending .stat-dot {
-    background: #6366F1;
-}
-
-.chart-wrapper {
-    height: 280px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.chart-empty {
-    color: #9CA3AF;
-    font-size: 1rem;
-    font-weight: 500;
-    text-align: center;
 }

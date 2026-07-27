@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../services/firebase";
 import "../css/navbar.css";
 
-function Navbar({ showSearch = false, search, onSearchChange }) {
+function Navbar() {
     const navigate = useNavigate();
 
-    function handleLogout() {
+    async function handleLogout() {
+        await signOut(auth);
         localStorage.removeItem("authToken");
         localStorage.removeItem("userRole");
         navigate("/login");
@@ -24,18 +27,6 @@ function Navbar({ showSearch = false, search, onSearchChange }) {
             <div className="navbar-brand" onClick={handleLogoClick}>
                 <h2>Todo App</h2>
             </div>
-            
-            {showSearch && (
-                <div className="navbar-search">
-                    <input
-                        type="search"
-                        className="premium-search-bar"
-                        placeholder="Search tasks..."
-                        value={search}
-                        onChange={onSearchChange}
-                    />
-                </div>
-            )}
 
             <div className="navbar-actions">
                 <button className="premium-logout-btn" onClick={handleLogout}>
