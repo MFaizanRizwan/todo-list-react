@@ -157,7 +157,7 @@ function TaskPage() {
 
     return (
         <>
-            <Navbar showSearch={false} />
+            <Navbar />
 
             {showModal && (
                 <div className="success-modal">
