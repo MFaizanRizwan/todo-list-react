@@ -39,7 +39,7 @@ body {
     margin-right: auto;
 }
 
-/* ── Todo Panel (fixed-height scrollable container) ─── */
+/* ── Todo Panel (fixed-height scrollable container) ───
 .todo-panel {
     background: #ffffff;
     border-radius: 20px;
