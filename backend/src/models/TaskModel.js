@@ -1,16 +1,14 @@
-import { getTasksByUsername } from '../services/task_services/getTasksByUsername';
-import { addTask } from '../services/task_services/addTask';
-import { deleteTask } from '../services/task_services/deleteTask';
-import { updateTask } from '../services/task_services/updateTask';
-import { getTaskById } from '../services/task_services/getTaskById';
-import { getTasks } from '../services/task_services/getTasks';
+import { getTasksByUsername } from '../services/task_services/getTasksByUsername.js';
+import { addTask } from '../services/task_services/addTask.js';
+import { deleteTask } from '../services/task_services/deleteTask.js';
+import { updateTask } from '../services/task_services/updateTask.js';
+import { getTaskById } from '../services/task_services/getTaskById.js';
+import { getTasks } from '../services/task_services/getTasks.js';
 
 class TaskModel {
-
     async getTaskbyUsername(username) {
         try {
-            const tasks = await getTaskbyUsername(username);
-            return tasks;
+            return await getTasksByUsername(username);
         } catch (error) {
             throw new Error('Error retrieving tasks for user');
         }
@@ -18,8 +16,7 @@ class TaskModel {
 
     async getTasks() {
         try {
-            const tasks = await getTasks();
-            return tasks;
+            return await getTasks();
         } catch (error) {
             throw new Error('Error retrieving tasks');
         }
@@ -62,4 +59,4 @@ class TaskModel {
     }
 }
 
-module.exports = new TaskModel();
+export default new TaskModel();

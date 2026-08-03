@@ -1,6 +1,6 @@
-import UserModel from '../models/userModel';
+import UserModel from '../models/UserModel.js';
 
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
         const users = await UserModel.getUsers();
         res.json(users);
@@ -9,7 +9,7 @@ exports.getUsers = async (req, res) => {
     }
 };
 
-exports.getUsersCount = async (req, res) => {
+export const getUsersCount = async (req, res) => {
     try {
         const count = await UserModel.getUsersCount();
         res.json({ count });

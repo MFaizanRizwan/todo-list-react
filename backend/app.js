@@ -1,18 +1,18 @@
-const express = require('express');
-const usersRouter = require('./src/routes/users');
-const productsRouter = require('./src/routes/tasks');
+import express from 'express';
+import usersRouter from './src/routes/users.js';
+import productsRouter from './src/routes/tasks.js';
 
 const app = express();
-const port = 65532;
+const port = 3002;
 
 // Use the routers
 app.use('/users', usersRouter);
 app.use('/tasks', productsRouter);
 
 app.get('/', (req, res) => {
-  res.send('Main application home page');
+    res.send('Main application home page');
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Example app listening at http://localhost:${port}`);
 });

@@ -1,6 +1,6 @@
-import TaskModel from '../models/TaskModel';
+import TaskModel from '../models/TaskModel.js';
 
-exports.create = async (req, res) => {
+export const create = async (req, res) => {
   const taskData = req.body;
   try {
     await TaskModel.addTask(taskData);
@@ -10,7 +10,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.getTasksByUser = async (req, res) => {
+export const getTasksByUser = async (req, res) => {
   const username = req.params.username;
   try {
     const tasks = await TaskModel.getTaskbyUsername(username);
@@ -20,7 +20,7 @@ exports.getTasksByUser = async (req, res) => {
   }
 };
 
-exports.getTasks = async (req, res) => {
+export const getTasks = async (req, res) => {
   try {
     const tasks = await TaskModel.getTasks();
     res.json(tasks);
@@ -29,7 +29,7 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-exports.getTaskById = async (req, res) => {
+export const getTaskById = async (req, res) => {
   const taskId = req.params.id;
   try {
     const task = await TaskModel.getTaskById(taskId);
@@ -42,7 +42,7 @@ exports.getTaskById = async (req, res) => {
   }
 };
 
-exports.updateTask = async (req, res) => {
+export const updateTask = async (req, res) => {
   const taskId = req.params.id;
   const updatedData = req.body;
   try {
@@ -53,7 +53,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-exports.deleteTask = async (req, res) => {
+export const deleteTask = async (req, res) => {
   const taskId = req.params.id;
   try {
     await TaskModel.deleteTask(taskId);
